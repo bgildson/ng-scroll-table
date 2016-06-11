@@ -1,0 +1,148 @@
+.s-table, .s-table * {
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  border-spacing: 0;
+  /* nao deixa selecionar textos *
+  -webkit-user-select: none; /* Chrome/Safari *
+  -moz-user-select: none; /* Firefox *
+  -ms-user-select: none; /* IE10+ *
+  /* Rules below not implemented in browsers yet *
+  -o-user-select: none;
+  user-select: none;*/
+}
+.s-table {
+  border: 1px solid #DDD;
+}
+.s-table table {
+  border-collapse: collapse;
+}
+.s-table > tbody > tr {
+  border-bottom: 1px solid #DDD;
+}
+.s-table-title {
+  background: #CCC;
+}
+.s-table-title > div {
+  overflow-x: hidden;
+}
+.s-table-title table {
+  display: table;
+}
+.s-table-title td {
+  display: table;
+  float: left;
+  cursor: default;
+}
+.s-table-title th {
+  position: relative;
+  padding: 0 !important;
+}
+.s-table-title th > div {
+  padding: 7px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.s-table-title th > div > span {
+  position: absolute;
+  right: 7px;
+}
+.s-table-title th > span {
+  height: 30px;
+  width: 3px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  cursor: e-resize;
+}
+.s-table-title .btn {
+  padding: 6px;
+}
+.s-table-title .dropdown-toggle {
+  /*position: relative;*/
+}
+.s-table-title table tr:last-child td {
+  border-bottom: none;
+}
+.s-table-title .input-group input, .s-table-title .input-group div button {
+  height: 30px;
+  padding: 0 6px;
+}
+.s-table-content {
+  overflow: scroll;
+  margin-right: 1px;
+  background: #FFF;
+}
+.s-table-content tr {
+  border-bottom: 0 !important;
+}
+.s-table-content td {
+  padding: 3px 7px;
+  cursor: default;
+  position: relative;
+}
+.s-table-content table {
+  display: table;
+  border: none;
+}
+.s-table-content table tbody tr td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.s-table-selected {
+  background: #C4C4C4 !important;
+}
+.s-table-title table tr:nth-child(1) th:hover {
+  background: #E6E6E6;
+}
+.s-pagination {
+  height: 60px;
+  background: #CCC;
+}
+.s-pagination td ul {
+  list-style: none;
+}
+.s-pagination td {
+  border: 1px solid #DDD;
+}
+.s-pagination ul {
+  display: table;
+  float: right;
+  margin: 10px 10px;
+}
+.s-pagination li {
+  float: left;
+  padding: 3px;
+  line-height: 30px;
+}
+.s-pagination .btn {
+  min-width: 30px;
+  padding: 5px;
+}
+.s-pagination input {
+  text-align: center;
+  padding: 0 6px;
+  width: 40px
+}
+.s-pagination .btn, .s-pagination input, .s-pagination select {
+  height: 30px;
+}
+.s-pagination select {
+  padding: 0 6px;
+}
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+.no-padding {
+  padding: 0 !important;
+}
