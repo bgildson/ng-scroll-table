@@ -86,30 +86,30 @@ angular.module('ng-scroll-table', [])
           return attrs.templateUrl || 'template/ng-scroll-table.html';
         },
         scope: {
-          columns:       '=stColumns', 
-          rows:          '=?stRows', 
-          click:         '=?stClick', 
-          dblclick:      '=?stDblclick', 
-          usePagination: '=?stUsePagination', 
-          rowSelected:   '=?stRowSelected', 
-          rowsOptions:   '=?stRowsOptions', 
-          rowsByPage:    '=?stRowsByPage', 
-          orderField:    '=?stOrderField',
-          orderAscendant:'=?stOrderAscendant',
-          extraWidth:    '=?stExtraWidth',
-          extra:        '=?stExtra' 
+          columns:          '=stColumns', 
+          rows:             '=?stRows', 
+          click:            '=?stClick', 
+          dblclick:         '=?stDblclick', 
+          usePagination:    '=?stUsePagination', 
+          rowSelected:      '=?stRowSelected', 
+          rowsOptions:      '=?stRowsOptions', 
+          rowsByPage:       '=?stRowsByPage', 
+          orderField:       '=?stOrderField',
+          orderAscendant:   '=?stOrderAscendant',
+          extraColumnsWidth:'=?stExtraColumnsWidth',
+          extra:            '=?stExtra' 
         },
         link: function(scope, element, attrs){
 
           scope.rows = (scope.rows ? scope.rows : []);
-          scope.usePagination = (scope.usePagination ? scope.usePagination : false);
+          scope.usePagination = (scope.usePagination == undefined ? false : scope.usePagination);
           scope.rowSelected = (scope.rowSelected ? scope.rowSelected : {});
           scope.pagination = {};
-          scope.pagination.rowsOptions = (scope.rowsOptions ? scope.rowsOptions : [10, 20, 30, 40, 50]);;
+          scope.pagination.rowsOptions = (scope.rowsOptions ? scope.rowsOptions : [10, 20, 30, 40, 50]);
           scope.pagination.rowsByPage = (scope.rowsByPage ? scope.rowsByPage : scope.pagination.rowsOptions[0]);
           scope.orderField = (scope.orderField ? scope.orderField : '');
-          scope.orderAscendant = (scope.orderAscendant != undefined ? scope.orderAscendant : false);
-          scope.extraWidth = (scope.extraWidth ? scope.extraWidth : 0);
+          scope.orderAscendant = (scope.orderAscendant == undefined ? false : scope.orderAscendant);
+          scope.extraColumnsWidth = (scope.extraColumnsWidth ? scope.extraColumnsWidth : 0);
           scope.pageRows = [];
           scope.currentPage = 1;
           scope.quantPages = 1;
@@ -173,7 +173,7 @@ angular.module('ng-scroll-table', [])
           };
 
           scope.updateTotalColumnsWidth = function(){
-            scope.totalColumnsWidth = scope.extraWidth;
+            scope.totalColumnsWidth = scope.extraColumnsWidth;
             for(var n = 0; n < scope.columns.length; n++){
               if(!scope.columns[n].invisible){
                 scope.totalColumnsWidth += scope.columns[n].width;
@@ -188,6 +188,9 @@ angular.module('ng-scroll-table', [])
             scope.orderAscendant = (scope.orderField == orderField ? !scope.orderAscendant : true);
             scope.orderField = orderField;
             scope.sortRows();
+
+            // new
+            scope.updatePages();
           };
 
           /****************
@@ -308,9 +311,9 @@ angular.module('ng-scroll-table', [])
 
           scope.$watch('rows', function(){
             
-            if(scope.orderField){
-              scope.sortRows();
-            }
+            // if(scope.orderField){
+            //   scope.sortRows();
+            // }
             
             scope.updatePages();
 
