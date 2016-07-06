@@ -33,23 +33,23 @@ angular.module('ng-scroll-table', [])
         '   </tr>' +
         '   <tr>' +
         '     <td>' +
-        '       <div class="s-table-content" style="width: {{parentWidth}}px; height: {{contentHeight-(62*(usePagination&&rows.length > 0))}}px; ">' +
+        '       <div class="s-table-content" style="width: {{parentWidth}}px; height: {{contentHeight-(62*(usePagination&&_rows.length > 0))}}px; ">' +
         '         <hr size="1" style="width: {{totalColumnsWidth}}px; margin: -1px;">' +
         '         <table style="width: {{totalColumnsWidth}}px" class="table table-condensed table-hover table-bordered table-striped">' +
-        '           <tr ng-repeat="row in pageRows track by $index" ng-click="_click(row)" ng-dblclick="_dblclick(row)" style="width: {{totalColumnsWidth}}px; display: block;" ng-class="{\'s-table-selected\': row.__properties.selected}">' +
+        '           <tr ng-repeat="row in pageRows track by $index" ng-click="_click(row)" ng-dblclick="_dblclick(row)" style="width: {{totalColumnsWidth}}px; display: block;" ng-class="{\'s-table-selected\': row.properties.selected}">' +
         '             <td style="max-width: {{col.width}}px; width: {{col.width}}px" ng-repeat="col in columns" ng-if="!col.invisible" ng-class="{\'text-left\': col.alignContent == 1, \'text-center\': col.alignContent == 2, \'text-right\': col.alignContent == 3}">' +
-        '               {{ row[col.field] }}' +
+        '               {{ row.data[col.field] }}' +
         '             </td>' +
         '           </tr>' +
         '         </table>' +
         '       </div>' +
         '     </td>' +
         '   </tr>' +
-        '   <tr class="s-pagination" ng-if="usePagination && rows.length > 0">' +
+        '   <tr class="s-pagination" ng-if="usePagination && _rows.length > 0">' +
         '     <td colspan="100%">' +
         '       <ul style="float:left;">' +
         '         <li>' +
-        '           De {{ (currentPage - 1) * pagination.rowsByPage + 1 }} à {{ (currentPage - 1) * pagination.rowsByPage + pageRows.length }} de {{ rows.length }} Registros' +
+        '           De {{ (currentPage - 1) * pagination.rowsByPage + 1 }} à {{ (currentPage - 1) * pagination.rowsByPage + pageRows.length }} de {{ _rows.length }} Registros' +
         '         </li>' +
         '       </ul>' +
         '       <ul>' +
@@ -102,6 +102,7 @@ angular.module('ng-scroll-table', [])
         link: function(scope, element, attrs){
 
           scope.rows = (scope.rows ? scope.rows : []);
+          scope._rows = [];
           scope.usePagination = (scope.usePagination == undefined ? false : scope.usePagination);
           scope.rowSelected = (scope.rowSelected ? scope.rowSelected : {});
           scope.pagination = {};
@@ -128,7 +129,7 @@ angular.module('ng-scroll-table', [])
            ****************/
           scope._click = function(row){
             scope.deselectAll();
-            row.__properties.selected = true;
+            row.properties.selected = true;
             scope.rowSelected = row;
 
             if(scope.click){
@@ -146,30 +147,32 @@ angular.module('ng-scroll-table', [])
             scope.currentPage = 1;
 
             // create table properties
-            for(var n = 0; n < scope.rows.length; n++){
-              scope.rows[n].__properties = {selected: false};
+            for(var n = 0; n < scope._rows.length; n++){
+              scope._rows[n].properties = {selected: false};
             }
           };
 
           scope.deselectAll = function(){
-            for(var n = 0; n < scope.rows.length; n++){
-              scope.rows[n].__properties.selected = false;
+            for(var n = 0; n < scope._rows.length; n++){
+              scope._rows[n].properties.selected = false;
             }
           };
 
           scope.sortRows = function(){
             function compare(a,b) {
-              var a_c = (isNaN(a[scope.orderField]) ? a[scope.orderField].toLowerCase() : a[scope.orderField]);
-              var b_c = (isNaN(b[scope.orderField]) ? b[scope.orderField].toLowerCase() : b[scope.orderField]);
+              var a_c = (isNaN(a.data[scope.orderField]) ? a.data[scope.orderField].toLowerCase() : a.data[scope.orderField]);
+              var b_c = (isNaN(b.data[scope.orderField]) ? b.data[scope.orderField].toLowerCase() : b.data[scope.orderField]);
               if (a_c < b_c)
                 return (scope.orderAscendant ? -1 : 1);
               else if (a_c > b_c)
                 return (scope.orderAscendant ? 1 : -1);
-              else 
+              else
                 return 0;
             }
 
-            scope.rows.sort(compare);
+            scope._rows.sort(compare);
+
+            scope.updatePages();
           };
 
           scope.updateTotalColumnsWidth = function(){
@@ -188,9 +191,6 @@ angular.module('ng-scroll-table', [])
             scope.orderAscendant = (scope.orderField == orderField ? !scope.orderAscendant : true);
             scope.orderField = orderField;
             scope.sortRows();
-
-            // new
-            scope.updatePages();
           };
 
           /****************
@@ -240,22 +240,33 @@ angular.module('ng-scroll-table', [])
             }
           };
 
+          scope.updateRows = function(){
+
+            scope._rows = [];
+
+            for(var n = 0; n < scope.rows.length; n++){
+              scope._rows.push({data: scope.rows[n]});
+            }
+
+            scope.updatePages();
+          };
+
           scope.updatePages = function(){
 
             if(scope.usePagination){
               // com paginacao
-              if(scope.rows.length > 0){
+              if(scope._rows.length > 0){
 
                 scope.pageRows = [];
 
-                scope.quantPages = Math.ceil(scope.rows.length / scope.pagination.rowsByPage);
+                scope.quantPages = Math.ceil(scope._rows.length / scope.pagination.rowsByPage);
 
                 var initialRegister = (scope.currentPage - 1) * scope.pagination.rowsByPage;
                 var lastRegisterOfPage = scope.currentPage * scope.pagination.rowsByPage - 1;
-                var lastRegister = scope.rows.length - 1;
+                var lastRegister = scope._rows.length - 1;
 
                 for(var n = initialRegister; n <= lastRegisterOfPage && n <= lastRegister; n++){
-                  scope.pageRows.push(scope.rows[n]);
+                  scope.pageRows.push(scope._rows[n]);
                 }
 
                 scope.pages = [];
@@ -277,14 +288,12 @@ angular.module('ng-scroll-table', [])
               }
             }else{
               // sem paginacao
-              scope.pageRows = scope.rows;
+              scope.pageRows = scope._rows;
             }
           };
 
           scope.updateRowsByPage = function(){
             scope.currentPage = 1;
-            // console.log(scope.pagination.rowsByPage);
-            // scope.rowsByPage = parseInt(element[0].querySelector('#rowsByPage').value);
             scope.updatePages();
           };
 
@@ -315,7 +324,9 @@ angular.module('ng-scroll-table', [])
             //   scope.sortRows();
             // }
             
-            scope.updatePages();
+            scope.updateRows();
+
+            scope.adjustRows();
 
           }, true);
 
@@ -333,7 +344,7 @@ angular.module('ng-scroll-table', [])
            ****************/
           $timeout(function() {
             scope.contentHeight = element[0].parentElement.clientHeight - angular.element(element[0].querySelector('.s-table-title > div'))[0].clientHeight;
-            scope.adjustRows();
+            // scope.adjustRows();
           });
 
           /****************
