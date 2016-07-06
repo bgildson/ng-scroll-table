@@ -36,9 +36,9 @@ angular.module('ng-scroll-table', [])
         '       <div class="s-table-content" style="width: {{parentWidth}}px; height: {{contentHeight-(62*(usePagination&&_rows.length > 0))}}px; ">' +
         '         <hr size="1" style="width: {{totalColumnsWidth}}px; margin: -1px;">' +
         '         <table style="width: {{totalColumnsWidth}}px" class="table table-condensed table-hover table-bordered table-striped">' +
-        '           <tr ng-repeat="row in pageRows track by $index" ng-click="_click(row)" ng-dblclick="_dblclick(row)" style="width: {{totalColumnsWidth}}px; display: block;" ng-class="{\'s-table-selected\': row.properties.selected}">' +
+        '           <tr ng-repeat="row in pageRows track by $index" ng-click="_click(row)" ng-dblclick="_dblclick(row)" style="width: {{totalColumnsWidth}}px; display: block;" ng-class="{\'s-table-selected\': rowIsSelected(row)}">' +
         '             <td style="max-width: {{col.width}}px; width: {{col.width}}px" ng-repeat="col in columns" ng-if="!col.invisible" ng-class="{\'text-left\': col.alignContent == 1, \'text-center\': col.alignContent == 2, \'text-right\': col.alignContent == 3}">' +
-        '               {{ row.data[col.field] }}' +
+        '               {{ row[col.field] }}' +
         '             </td>' +
         '           </tr>' +
         '         </table>' +
@@ -128,8 +128,6 @@ angular.module('ng-scroll-table', [])
            * internal
            ****************/
           scope._click = function(row){
-            scope.deselectAll();
-            row.properties.selected = true;
             scope.rowSelected = row;
 
             if(scope.click){
@@ -143,25 +141,14 @@ angular.module('ng-scroll-table', [])
             }
           };
 
-          scope.adjustRows = function(){
-            scope.currentPage = 1;
-
-            // create table properties
-            for(var n = 0; n < scope._rows.length; n++){
-              scope._rows[n].properties = {selected: false};
-            }
-          };
-
-          scope.deselectAll = function(){
-            for(var n = 0; n < scope._rows.length; n++){
-              scope._rows[n].properties.selected = false;
-            }
+          scope.rowIsSelected = function(row){
+            return scope.rowSelected === row;
           };
 
           scope.sortRows = function(){
             function compare(a,b) {
-              var a_c = (isNaN(a.data[scope.orderField]) ? a.data[scope.orderField].toLowerCase() : a.data[scope.orderField]);
-              var b_c = (isNaN(b.data[scope.orderField]) ? b.data[scope.orderField].toLowerCase() : b.data[scope.orderField]);
+              var a_c = (isNaN(a[scope.orderField]) ? a[scope.orderField].toLowerCase() : a[scope.orderField]);
+              var b_c = (isNaN(b[scope.orderField]) ? b[scope.orderField].toLowerCase() : b[scope.orderField]);
               if (a_c < b_c)
                 return (scope.orderAscendant ? -1 : 1);
               else if (a_c > b_c)
@@ -171,7 +158,6 @@ angular.module('ng-scroll-table', [])
             }
 
             scope._rows.sort(compare);
-
             scope.updatePages();
           };
 
@@ -241,13 +227,7 @@ angular.module('ng-scroll-table', [])
           };
 
           scope.updateRows = function(){
-
-            scope._rows = [];
-
-            for(var n = 0; n < scope.rows.length; n++){
-              scope._rows.push({data: scope.rows[n]});
-            }
-
+            scope._rows = scope.rows;
             scope.updatePages();
           };
 
@@ -258,7 +238,6 @@ angular.module('ng-scroll-table', [])
               if(scope._rows.length > 0){
 
                 scope.pageRows = [];
-
                 scope.quantPages = Math.ceil(scope._rows.length / scope.pagination.rowsByPage);
 
                 var initialRegister = (scope.currentPage - 1) * scope.pagination.rowsByPage;
@@ -326,7 +305,7 @@ angular.module('ng-scroll-table', [])
             
             scope.updateRows();
 
-            scope.adjustRows();
+            scope.currentPage = 1;
 
           }, true);
 
@@ -344,7 +323,6 @@ angular.module('ng-scroll-table', [])
            ****************/
           $timeout(function() {
             scope.contentHeight = element[0].parentElement.clientHeight - angular.element(element[0].querySelector('.s-table-title > div'))[0].clientHeight;
-            // scope.adjustRows();
           });
 
           /****************
